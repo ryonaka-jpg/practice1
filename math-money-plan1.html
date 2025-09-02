@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修学旅行シミュレーション</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1 {
+            text-align: center;
+            color: #4a69bd;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            font-size: 18px;
+            color: #6a89cc;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .item {
+            background-color: #f9f9fb;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        .item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e6f7ff;
+            border-radius: 8px;
+            border: 1px solid #b3e0ff;
+        }
+        .result h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        #totalCost, #remainingBudget {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        #remainingBudget.over-budget {
+            color: #e74c3c;
+        }
+        .info {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>修学旅行シミュレーション</h1>
+    <p>予算：**3000円**</p>
+
+    <div class="section">
+        <h2>昼食を選ぶ</h2>
+        <div class="item">
+            <label for="lunch">昼食を選んでください：</label>
+            <select id="lunch">
+                <option value="800">そば（800円）</option>
+                <option value="1000">カレーライス（1000円）</option>
+                <option value="1200">焼肉定食（1200円）</option>
+                <option value="500">かけうどん（500円）</option>
+                <option value="160">メロンパン（160円）</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>お土産の個数を選ぶ</h2>
+        <p class="info">※チョコをちょうど2箱買うと、300円値引きされます。</p>
+        <div class="item-list">
+            <div class="item">
+                <label for="choco">チョコ（1箱 500円）：</label>
+                <input type="number" id="choco" value="0" min="0" max="10">
+            </div>
+            <div class="item">
+                <label for="candy">あめ（1箱 600円）：</label>
+                <input type="number" id="candy" value="0" min="0" max="10">
+            </div>
+        </div>
+    </div>
+
+    <div class="result">
+        <h3>計算結果</h3>
+        <p>合計金額：<span id="totalCost">0</span>円</p>
+        <p>残り予算：<span id="remainingBudget">3000</span>円</p>
+        <p id="message"></p>
+    </div>
+
+</div>
+
+<script>
+    const budget = 3000;
+    const lunchSelect = document.getElementById('lunch');
+    const chocoInput = document.getElementById('choco');
+    const candyInput = document.getElementById('candy');
+    const totalCostSpan = document.getElementById('totalCost');
+    const remainingBudgetSpan = document.getElementById('remainingBudget');
+    const message = document.getElementById('message');
+
+    function calculateCost() {
+        // 昼食代を取得
+        const lunchCost = parseInt(lunchSelect.value, 10);
+        
+        // お土産の個数を取得
+        const chocoCount = parseInt(chocoInput.value, 10) || 0;
+        const candyCount = parseInt(candyInput.value, 10) || 0;
+
+        // お土産代を計算
+        let souvenirCost = (chocoCount * 500) + (candyCount * 600);
+        
+        // 特別ルールを適用
+        if (chocoCount === 2) {
+            souvenirCost -= 300;
+        }
+
+        // 合計金額を計算
+        const totalCost = lunchCost + souvenirCost;
+        const remainingBudget = budget - totalCost;
+
+        // 結果を表示
+        totalCostSpan.textContent = totalCost;
+        remainingBudgetSpan.textContent = remainingBudget;
+
+        // 予算オーバーの判定
+        if (remainingBudget < 0) {
+            remainingBudgetSpan.classList.add('over-budget');
+            message.textContent = `予算を ${Math.abs(remainingBudget)} 円オーバーしています！`;
+            message.style.color = 'red';
+        } else {
+            remainingBudgetSpan.classList.remove('over-budget');
+            message.textContent = '';
+        }
+    }
+
+    // イベントリスナーを設定
+    lunchSelect.addEventListener('change', calculateCost);
+    candyInput.addEventListener('input', calculateCost);
+    chocoInput.addEventListener('input', calculateCost);
+
+    // 最初の計算を実行
+    calculateCost();
+</script>
+
+</body>
+</html>
